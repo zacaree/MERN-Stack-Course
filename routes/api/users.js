@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const keys = require("../../config/keys");
 
 // Bring in the User model for use in our routes.
 // We can use any Mongoose methods that it brings along with it because Mongoose is loaded in the User file.
@@ -74,7 +76,16 @@ router.post("/login", (req, res) => {
     // Check password. Password user just gave is plain text but the one in the DB is hashed so we need to use bcrypt to compare the two.
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
-        res.json({ msg: "Success!" });
+        // If user matched, create payload for JWT to take with it to the server.
+        const payload = { id: user.id, name: user.name, avatar: user.avatar };
+
+        // Sign token
+        jwt.sign(payload, keys.secretOrKey, { expiresIn: 3600 }, (err, token) => {
+          res.json({
+            success: true,
+            token: `Bearer ${token}`
+          });
+        });
       } else {
         return res.status(400).json({ password: "Password incorrect" });
       }
