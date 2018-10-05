@@ -4,6 +4,8 @@ const gravatar = require("gravatar");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const keys = require("../../config/keys");
+// To create a protected route we need to bring in passport
+const passport = require("passport");
 
 // Bring in the User model for use in our routes.
 // We can use any Mongoose methods that it brings along with it because Mongoose is loaded in the User file.
@@ -91,6 +93,14 @@ router.post("/login", (req, res) => {
       }
     });
   });
+});
+
+// @route   GET api/users/current
+// @desc    Return current user
+// @access  Private
+// This is a standard route but it includes the token checking before it'll allow the user in.
+router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
+  res.json({ id: req.user.id, name: req.user.name, email: req.user.email });
 });
 
 module.exports = router;
