@@ -7,6 +7,9 @@ const keys = require("../../config/keys");
 // To create a protected route we need to bring in passport
 const passport = require("passport");
 
+// Load input validation
+const validateRegisterInput = require("../../validation/register");
+
 // Bring in the User model for use in our routes.
 // We can use any Mongoose methods that it brings along with it because Mongoose is loaded in the User file.
 const User = require("../../models/User");
@@ -21,14 +24,22 @@ router.get("/test", (req, res) => res.json({ msg: "Users works!" }));
 // @access  Public
 // It'll be router.post because we're going to expect a post request
 router.post("/register", (req, res) => {
-  // 1. Use Mongoose to find out if the email exists because we don't want someone to sign up with an email that's already in the database.
+  // Our validation fn takes in req.body and runs them through testing. (in this case that's the email and password inputs)
+  const { errors, isValid } = validateRegisterInput(req.body);
+  // isValid has been destructured so this is like saying validateRegisterInput.isValid. If it's not true return 400 error.
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  // Use Mongoose to find out if the email exists because we don't want someone to sign up with an email that's already in the database.
   // findOne is a Mongoose method. It's going to look at the email address given in the form and try to findOne that matches in the DB.
   // When we send data to a route through a POST request using a form in out React app, we access that data on the Node side using req.body.<name of the form input>
   User.findOne({ email: req.body.email }).then(user => {
     // if user is truthy, that means that there is a user with that email address already in the DB
     if (user) {
-      // Throw a 400 error and return a message
-      return res.status(400).json({ email: "Email already exists" });
+      // Add error message to the errors object and return that object with a 400 error.
+      errors.email = "Email already exists";
+      return res.status(400).json(errors);
     } else {
       // Grab an avatar based on given email address. Then there are some options...
       const avatar = gravatar.url(req.body.email, {
@@ -100,7 +111,11 @@ router.post("/login", (req, res) => {
 // @access  Private
 // This is a standard route but it includes the token checking before it'll allow the user in.
 router.get("/current", passport.authenticate("jwt", { session: false }), (req, res) => {
-  res.json({ id: req.user.id, name: req.user.name, email: req.user.email });
+  res.json({
+    id: req.user.id,
+    name: req.user.name,
+    email: req.user.email
+  });
 });
 
 module.exports = router;
