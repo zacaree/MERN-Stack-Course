@@ -9,6 +9,7 @@ const passport = require("passport");
 
 // Load input validation
 const validateRegisterInput = require("../../validation/register");
+const validateLoginInput = require("../../validation/login");
 
 // Bring in the User model for use in our routes.
 // We can use any Mongoose methods that it brings along with it because Mongoose is loaded in the User file.
@@ -76,6 +77,12 @@ router.post("/register", (req, res) => {
 // @desc    Login user / returning JWT (JSON Web Token)
 // @access  Public
 router.post("/login", (req, res) => {
+  // Input validation
+  const { errors, isValid } = validateLoginInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -83,7 +90,8 @@ router.post("/login", (req, res) => {
   User.findOne({ email: email }).then(user => {
     // If user is not found return. Otherwise keep going.
     if (!user) {
-      return res.status(404).json({ email: "User not found" });
+      errors.email = "User not found";
+      return res.status(404).json(errors);
     }
 
     // Check password. Password user just gave is plain text but the one in the DB is hashed so we need to use bcrypt to compare the two.
@@ -100,7 +108,8 @@ router.post("/login", (req, res) => {
           });
         });
       } else {
-        return res.status(400).json({ password: "Password incorrect" });
+        errors.password = "Password incorrect";
+        return res.status(400).json(errors);
       }
     });
   });
