@@ -5,7 +5,9 @@ module.exports = function validateRegisterInput(data) {
   // errors begins as an empty object. If it remains empty till the end of the fn, all is well and the key isValid will resolve as true.
   let errors = {};
 
-  // Is the name input empty? If it's not, store it in this object. If it is make it an empty string.
+  // Validator only takes in strings so our custom isEmpty fn checks for undefined and null in case the user left the field blank.
+  // Then this will take that undefined or null and set them to an empty string.
+  // Once its set to an empty string it can be checked by Validator.
   data.name = !isEmpty(data.name) ? data.name : "";
   data.email = !isEmpty(data.email) ? data.email : "";
   data.password = !isEmpty(data.password) ? data.password : "";
