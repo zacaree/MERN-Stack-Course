@@ -36,6 +36,64 @@ router.get("/", passport.authenticate("jwt", { session: false }), (req, res) => 
     .catch(err => res.status(404).json(err));
 });
 
+// @route   GET api/profile/all
+// @desc    Get and list all profiles
+// @access  Public
+router.get("/all", (req, res) => {
+  const errors = {};
+
+  Profile.find()
+    .populate("user", ["name", "avatar"])
+    .then(profiles => {
+      if (!profiles) {
+        errors.noprofile = "No profiles found";
+        return res.status(404).json(errors);
+      }
+      res.json(profiles);
+    })
+    .catch(err => res.status(404).json({ profile: "No profiles found" }));
+});
+
+// @route   GET api/profile/handle/:handle
+// @desc    Get profile by handle
+// @access  Public
+router.get("/handle/:handle", (req, res) => {
+  const errors = {};
+  // Find and request a profile with a handle that matches the one in the URL
+  Profile.findOne({ handle: req.params.handle })
+    // Grab the name and avatar from the user model which is shared with the profile model.
+    .populate("user", ["name", "avatar"])
+    // Then return the user's profile
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = "There is no profile for this user";
+        return res.status(404).json(errors);
+      }
+      res.json(profile);
+    })
+    .catch(err => res.status(404).json({ profile: "There is no profile for this user" }));
+});
+
+// @route   GET api/profile/user/:user_id
+// @desc    Get profile by user id
+// @access  Public
+router.get("/user/:user_id", (req, res) => {
+  const errors = {};
+  // Find and request a profile with a handle that matches the one in the URL
+  Profile.findOne({ user: req.params.user_id })
+    // Grab the name and avatar from the user model which is shared with the profile model.
+    .populate("user", ["name", "avatar"])
+    // Then return the user's profile
+    .then(profile => {
+      if (!profile) {
+        errors.noprofile = "There is no profile for this user";
+        return res.status(404).json(errors);
+      }
+      res.json(profile);
+    })
+    .catch(err => res.status(404).json(err));
+});
+
 // @route   POST api/profile
 // @desc    Create or edit user profile
 // @access  Private
