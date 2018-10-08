@@ -5,8 +5,10 @@ const passport = require("passport");
 // Load profile and user models so we can use them in Mongoose
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
-// Load profile validation
+// Load validation
 const validateProfileInput = require("../../validation/profile");
+const validateExperienceInput = require("../../validation/experience");
+const validateEducationInput = require("../../validation/education");
 
 // @route   GET api/profile/test
 // @desc    Tests the profile route
@@ -135,11 +137,9 @@ router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
     if (profile) {
       // Edit user profile
       // Find user by user id. Then edit that user with data from the profileFields object we created.
-      Profile.findOneAndUpdate(
-        { user: req.user.id },
-        { $set: profileFields },
-        { new: true }
-      ).then(profile => res.json(profile));
+      Profile.findOneAndUpdate({ user: req.user.id }, { $set: profileFields }, { new: true }).then(
+        profile => res.json(profile)
+      );
       // Create user profile
       // If profile doesn't exist, create it.
     } else {
@@ -155,6 +155,64 @@ router.post("/", passport.authenticate("jwt", { session: false }), (req, res) =>
         new Profile(profileFields).save().then(profile => res.json(profile));
       });
     }
+  });
+});
+
+// @route   POST api/profile/experience
+// @desc    Add experience to profile
+// @access  Private
+router.post("/experience", passport.authenticate("jwt", { session: false }), (req, res) => {
+  const { errors, isValid } = validateExperienceInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  Profile.findOne({ user: req.user.id }).then(profile => {
+    const newExp = {
+      title: req.body.title,
+      company: req.body.company,
+      location: req.body.location,
+      from: req.body.from,
+      to: req.body.to,
+      current: req.body.current,
+      description: req.body.description
+    };
+
+    // Add entered experience to the experience array
+    // We could use .push but this would add it to the end of the array.
+    // We want to use .unshift
+    profile.experience.unshift(newExp);
+    // Save changes to DB
+    profile.save().then(profile => res.json(profile));
+  });
+});
+
+// @route   POST api/profile/education
+// @desc    Add education to profile
+// @access  Private
+router.post("/education", passport.authenticate("jwt", { session: false }), (req, res) => {
+  const { errors, isValid } = validateEducationInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
+  Profile.findOne({ user: req.user.id }).then(profile => {
+    const newEdu = {
+      school: req.body.school,
+      degree: req.body.degree,
+      fieldofstudy: req.body.fieldofstudy,
+      from: req.body.from,
+      to: req.body.to,
+      current: req.body.current,
+      description: req.body.description
+    };
+
+    profile.education.unshift(newEdu);
+    profile.save().then(profile => res.json(profile));
   });
 });
 
