@@ -5,6 +5,8 @@ const passport = require("passport");
 // Load profile and user models so we can use them in Mongoose
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
+// Load profile validation
+const validateProfileInput = require("../../validation/profile");
 
 // @route   GET api/profile/test
 // @desc    Tests the profile route
@@ -15,12 +17,15 @@ router.get("/test", (req, res) => res.json({ msg: "Profile works!" }));
 // @desc    Get current user's profile
 // @access  Private
 router.get("/", passport.authenticate("jwt", { session: false }), (req, res) => {
-  const errors = {};
   // When the token is created it puts the user into req.user so we have access to it.
   // So we want to findOne user in the DB whose id matches rew.user.id stored in the JWT.
   // This will be the user profile we display on this route.
   // This will return a promise as it looks at the DB.
   Profile.findOne({ user: req.user.id })
+    // Since we connected our user to the profile inside the profile model,
+    // we are able to populate fields from "ref: users" into the response.
+    // So we tell it we want to populate from user and we want the name and the avatar.
+    .populate("user", ["name", "avatar"])
     .then(profile => {
       if (!profile) {
         errors.noprofile = "There is no profile for this user";
@@ -35,7 +40,13 @@ router.get("/", passport.authenticate("jwt", { session: false }), (req, res) => 
 // @desc    Create or edit user profile
 // @access  Private
 router.post("/", passport.authenticate("jwt", { session: false }), (req, res) => {
-  const errors = {};
+  const { errors, isValid } = validateProfileInput(req.body);
+
+  // Check Validation
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
+
   // We want to get data from input fields. This will be in req.body.
   const profileFields = {};
   // The user will come in through JWT
