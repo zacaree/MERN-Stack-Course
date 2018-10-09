@@ -5,7 +5,7 @@ const ProfileSchema = new Schema({
   // We want to associate the user with the profile...
   user: {
     type: Schema.Types.ObjectId, // This will associate the user by its id.
-    ref: "users" // Here we reference the collection this refers to.
+    ref: "users" // Here we reference the collection this refers to. The users collection.
   },
   handle: {
     type: String,
