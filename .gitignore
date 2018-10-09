@@ -33,6 +33,9 @@ bower_components
 # node-waf configuration
 .lock-wscript
 
+# production
+/build
+
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
@@ -60,6 +63,17 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # next.js build output
 .next
+
+# misc
+.DS_Store
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
