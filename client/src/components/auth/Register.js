@@ -1,5 +1,8 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 import axios from "axios";
+import { connect } from "react-redux";
+import { registerUser } from "../../actions/authActions";
 
 class Register extends Component {
   state = {
@@ -22,17 +25,23 @@ class Register extends Component {
       password: this.state.password,
       password2: this.state.password2
     };
-    axios
-      .post("api/users/register", newUser)
-      .then(res => console.log(res.data))
-      .catch(err => this.setState({ errors: err.response.data }));
+
+    // Any Redux action that we bring in we'll call through props. It'll be stored in there.
+    this.props.registerUser(newUser);
+
+    // axios
+    //   .post("api/users/register", newUser)
+    //   .then(res => console.log(res.data))
+    //   .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
     const { errors } = this.state;
+    const { user } = this.props.auth;
 
     return (
       <div className="register">
+        {user && user.name}
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
@@ -97,4 +106,19 @@ class Register extends Component {
   }
 }
 
-export default Register;
+Register.propTypes = {
+  registerUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired
+};
+
+// If we wanted to get any of the auth state into our component then we have to create a function called mapStateToProps.
+// It's putting the auth state into a property called auth so we can access it inside this component using this.props.auth.
+// It's important to understand that .auth ↓ comes from your root reducer (reducers/index.js), the keys you're exporting there.
+const mapStateToProps = state => ({
+  auth: state.auth
+});
+
+export default connect(
+  mapStateToProps,
+  { registerUser }
+)(Register);
