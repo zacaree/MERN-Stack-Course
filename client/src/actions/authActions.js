@@ -1,11 +1,15 @@
-import { TEST_DISPATCH } from "./types";
+import axios from "axios";
+import { GET_ERRORS } from "./types";
 
 // Register User
-export const registerUser = userData => {
-  // If we want to dispatch something to our reducer we can simply return an object which must at least contain a type.
-  // In this case the type and payload will both be dispatched to the reducer.
-  return {
-    type: TEST_DISPATCH,
-    payload: userData
-  };
+export const registerUser = userData => dispatch => {
+  axios
+    .post("api/users/register", userData)
+    .then(res => console.log(res.data))
+    .catch(err =>
+      dispatch({
+        type: GET_ERRORS,
+        payload: err.response.data
+      })
+    );
 };
