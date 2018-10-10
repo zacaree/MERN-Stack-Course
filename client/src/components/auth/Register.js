@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
 import { connect } from "react-redux";
 import { registerUser } from "../../actions/authActions";
 
@@ -28,11 +27,6 @@ class Register extends Component {
 
     // Any Redux action that we bring in we'll call through props. It'll be stored in there.
     this.props.registerUser(newUser);
-
-    // axios
-    //   .post("api/users/register", newUser)
-    //   .then(res => console.log(res.data))
-    //   .catch(err => this.setState({ errors: err.response.data }));
   };
 
   render() {
