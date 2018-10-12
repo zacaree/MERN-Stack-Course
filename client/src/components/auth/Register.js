@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { registerUser } from "../../actions/authActions";
+import { registerUser } from '../../actions/authActions';
 
 class Register extends Component {
   state = {
@@ -11,6 +11,17 @@ class Register extends Component {
     password2: "",
     errors: {}
   };
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
+  }
+  // componentDidUpdate(prevProps) {
+  //   if (prevProps.errors !== this.props.errors) {
+  //     this.setState({ errors: this.props.errors });
+  //   }
+  // }
 
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -31,11 +42,9 @@ class Register extends Component {
 
   render() {
     const { errors } = this.state;
-    const { user } = this.props.auth;
 
     return (
       <div className="register">
-        {user && user.name}
         <div className="container">
           <div className="row">
             <div className="col-md-8 m-auto">
@@ -102,17 +111,16 @@ class Register extends Component {
 
 Register.propTypes = {
   registerUser: PropTypes.func.isRequired,
-  auth: PropTypes.object.isRequired
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
 };
 
 // If we wanted to get any of the auth state into our component then we have to create a function called mapStateToProps.
 // It's putting the auth state into a property called auth so we can access it inside this component using this.props.auth.
 // It's important to understand that .auth ↓ comes from your root reducer (reducers/index.js), the keys you're exporting there.
 const mapStateToProps = state => ({
-  auth: state.auth
+  auth: state.auth,
+  errors: state.errors
 });
 
-export default connect(
-  mapStateToProps,
-  { registerUser }
-)(Register);
+export default connect(mapStateToProps, { registerUser })(Register);

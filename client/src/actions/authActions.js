@@ -4,7 +4,7 @@ import { GET_ERRORS } from "./types";
 // Register User
 export const registerUser = userData => dispatch => {
   axios
-    .post("api/users/register", userData)
+    .post("/api/users/register", userData)
     .then(res => console.log(res.data))
     .catch(err =>
       dispatch({
