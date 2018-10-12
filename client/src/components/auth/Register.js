@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { withRouter } from 'react-router-dom';
 import { connect } from "react-redux";
 import { registerUser } from '../../actions/authActions';
 
@@ -12,16 +13,16 @@ class Register extends Component {
     errors: {}
   };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.errors) {
-      this.setState({ errors: nextProps.errors });
-    }
-  }
-  // componentDidUpdate(prevProps) {
-  //   if (prevProps.errors !== this.props.errors) {
-  //     this.setState({ errors: this.props.errors });
+  // componentWillReceiveProps(nextProps) {
+  //   if (nextProps.errors) {
+  //     this.setState({ errors: nextProps.errors });
   //   }
   // }
+  componentDidUpdate(prevProps) {
+    if (prevProps.errors !== this.props.errors) {
+      this.setState({ errors: this.props.errors });
+    }
+  }
 
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -37,7 +38,8 @@ class Register extends Component {
     };
 
     // Any Redux action that we bring in we'll call through props. It'll be stored in there.
-    this.props.registerUser(newUser);
+    // this.props.history will allow us to redirect from within this action "registerUser"
+    this.props.registerUser(newUser, this.props.history);
   };
 
   render() {
@@ -123,4 +125,4 @@ const mapStateToProps = state => ({
   errors: state.errors
 });
 
-export default connect(mapStateToProps, { registerUser })(Register);
+export default connect(mapStateToProps, { registerUser })(withRouter(Register));
