@@ -1,4 +1,8 @@
 import React, { Component } from "react";
+import PropTypes from 'prop-types';
+// connect allows us to connect React and Redux together. It gets exported at the bottom of this component with props.
+import {connect} from 'react-redux';
+import {loginUser} from '../../actions/authActions';
 
 class Login extends Component {
   state = {
@@ -6,6 +10,12 @@ class Login extends Component {
     password: "",
     errors: {}
   };
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.errors !== this.props.errors) {
+      this.setState({ errors: this.props.errors });
+    }
+  }
 
   onChange = e => {
     this.setState({ [e.target.name]: e.target.value });
@@ -21,6 +31,8 @@ class Login extends Component {
   };
 
   render() {
+    const {errors} = this.state;
+
     return (
       <div className="login">
         <div className="container">
@@ -32,22 +44,24 @@ class Login extends Component {
                 <div className="form-group">
                   <input
                     type="email"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors.email && 'is-invalid'}`}
                     placeholder="Email Address"
                     name="email"
                     value={this.state.email}
                     onChange={this.onChange}
                   />
+                  {errors.email && <div className="invalid-feedback">{errors.email}</div>}
                 </div>
                 <div className="form-group">
                   <input
                     type="password"
-                    className="form-control form-control-lg"
+                    className={`form-control form-control-lg ${errors.password && 'is-invalid'}`}
                     placeholder="Password"
                     name="password"
                     value={this.state.password}
                     onChange={this.onChange}
                   />
+                  {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                 </div>
                 <input type="submit" className="btn btn-info btn-block mt-4" />
               </form>
@@ -59,4 +73,16 @@ class Login extends Component {
   }
 }
 
-export default Login;
+Login.propTypes ={
+  loginUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+}
+
+const mapStateToProps = (state) => ({
+  auth: state.auth,
+  errors: state.errors
+});
+
+// We're passing loginUser because that is a function that we want to call from the actions file.
+export default connect(null, {loginUser})(Login);
