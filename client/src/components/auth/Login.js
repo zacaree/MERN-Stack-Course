@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from 'prop-types';
 // connect allows us to connect React and Redux together. It gets exported at the bottom of this component with props.
-import {connect} from 'react-redux';
-import {loginUser} from '../../actions/authActions';
+import { connect } from 'react-redux';
+import { loginUser } from '../../actions/authActions';
 
 class Login extends Component {
   state = {
@@ -12,7 +12,8 @@ class Login extends Component {
   };
 
   componentDidUpdate(prevProps) {
-    if (nextProps.auth.isAuthenticated) {
+    const { isAuthenticated } = this.props.auth;
+    if (isAuthenticated) {
       this.props.history.push('/dashboard');
     }
     if (prevProps.errors !== this.props.errors) {
@@ -26,15 +27,15 @@ class Login extends Component {
 
   onSubmit = e => {
     e.preventDefault();
-    const user = {
+    const userData = {
       email: this.state.email,
       password: this.state.password
     };
-    console.log(user);
+    this.props.loginUser(userData);
   };
 
   render() {
-    const {errors} = this.state;
+    const { errors } = this.state;
 
     return (
       <div className="login">
@@ -76,7 +77,7 @@ class Login extends Component {
   }
 }
 
-Login.propTypes ={
+Login.propTypes = {
   loginUser: PropTypes.func.isRequired,
   auth: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired
@@ -88,4 +89,4 @@ const mapStateToProps = (state) => ({
 });
 
 // We're passing loginUser because that is a function that we want to call from the actions file.
-export default connect(null, {loginUser})(Login);
+export default connect(mapStateToProps, { loginUser })(Login);
