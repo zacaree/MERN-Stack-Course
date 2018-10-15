@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { withRouter } from 'react-router-dom';
+import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { registerUser } from '../../actions/authActions';
 
@@ -13,6 +13,12 @@ class Register extends Component {
     errors: {}
   };
 
+  // Redirect user if they're already logged in and stumble across this route.
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  }
   // componentWillReceiveProps(nextProps) {
   //   if (nextProps.errors) {
   //     this.setState({ errors: nextProps.errors });

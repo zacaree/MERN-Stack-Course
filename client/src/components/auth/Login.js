@@ -11,9 +11,15 @@ class Login extends Component {
     errors: {}
   };
 
+  // Redirect user if they're already logged in and stumble across this route.
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push('/dashboard');
+    }
+  }
+
   componentDidUpdate(prevProps) {
-    const { isAuthenticated } = this.props.auth;
-    if (isAuthenticated) {
+    if (this.props.auth.isAuthenticated) {
       this.props.history.push('/dashboard');
     }
     if (prevProps.errors !== this.props.errors) {
